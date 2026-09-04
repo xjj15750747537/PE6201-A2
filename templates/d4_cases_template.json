@@ -1,0 +1,522 @@
+[
+  {
+    "case_id": "TEAM-B-01",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-02",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-03",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-04",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-05",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-06",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-07",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-08",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-09",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-10",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-11",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-12",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-13",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-14",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-15",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-16",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-17",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-18",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-19",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-20",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-21",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-22",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-23",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-24",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-25",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-26",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-27",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-28",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-29",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-30",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-31",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-32",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": false,
+    "wrong_behaviour_to_catch": "",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-33",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-34",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-35",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-36",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-37",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-38",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-39",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  },
+  {
+    "case_id": "TEAM-B-40",
+    "owner": "ASSIGN_OWNER",
+    "is_negative": true,
+    "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION",
+    "fixture_note": "Describe the referral or added fixture record.",
+    "expected": {
+      "decision": "REPLACE_WITH_book_request_information_OR_escalate",
+      "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"
+    },
+    "check_type": "code",
+    "judgement_question": "Leave blank for code checks; otherwise state the human/judge question."
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "input_tokens": "MEASURED_FROM_D5",
+  "output_tokens": "MEASURED_FROM_D5",
+  "turns": "MEASURED_FROM_D4_D5",
+  "input_price_per_million": "MODEL_LIST_PRICE",
+  "output_price_per_million": "MODEL_LIST_PRICE",
+  "retrieval_and_tool_fees": 0.0,
+  "success_rate": "MEASURED_FROM_D4",
+  "failure_cost": "PROBLEM_B_ESCALATION_LABOUR_COST",
+  "fixed_monthly_cost": "TEAM_ASSUMPTION",
+  "monthly_volume": "PROBLEM_B_MONTHLY_VOLUME"
+}

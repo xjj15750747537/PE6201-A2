@@ -1,0 +1,29 @@
+{
+  "backend": "scripted",
+  "final_prompt_version": "v2",
+  "live_models": [
+    {
+      "owner": "MEMBER_1",
+      "model": "REPLACE_WITH_CHEAP_MODEL",
+      "family": "REPLACE",
+      "price_tier": "cheap"
+    },
+    {
+      "owner": "MEMBER_2",
+      "model": "REPLACE_WITH_DIFFERENT_FAMILY",
+      "family": "REPLACE",
+      "price_tier": "mid"
+    },
+    {
+      "owner": "MEMBER_3",
+      "model": "REPLACE_WITH_THIRD_FAMILY",
+      "family": "REPLACE",
+      "price_tier": "frontier"
+    }
+  ],
+  "v1_comparison": {
+    "owner": "MEMBER_4",
+    "same_model_as": "MEMBER_1",
+    "prompt_version": "v1"
+  }
+}
