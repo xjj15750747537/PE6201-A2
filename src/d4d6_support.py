@@ -22,8 +22,8 @@ REQUIRED_CASE_FIELDS = {
 def validate_cases(cases: list[dict[str, object]]) -> list[str]:
     """Return plain-English validation issues; an empty list means ready."""
     issues: list[str] = []
-    if not 30 <= len(cases) <= 50:
-        issues.append("D4 needs between 30 and 50 cases.")
+    if len(cases) < 51:
+        issues.append("D4 needs at least 51 cases under the lecturer's current instruction.")
     negative_count = sum(bool(case.get("is_negative")) for case in cases)
     if negative_count < 2:
         issues.append("D4 needs at least two negative cases; six to ten is recommended.")

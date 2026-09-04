@@ -4,9 +4,9 @@ This playbook is designed for team members who do not need to edit Python. Run t
 
 ## D4: evaluation set
 
-1. Run the template cell. It creates 40 editable rows, including eight negative cases.
-2. Replace every placeholder in `templates/d4_cases_template.json` with a reproducible fixture note and ground-truth expectation.
-3. Every negative case must state the unsafe action it prevents. Keep ordinary cases at one trial and negative cases at three trials.
+1. Run the template cell. It creates the 55 real, labelled Problem B rows: the 15 shipped cases plus 40 team-authored cases.
+2. Keep the generator, generated `data_B/`, and `expected_outcomes_B.json` together. Do not edit or delete a shipped row.
+3. Every negative case states the unsafe booking behaviour it prevents. Keep ordinary cases at one trial and negative cases at three trials.
 4. Use `code` for fixed fields such as decision, trigger, clinic, date, time, and whether the staged action happened once. Use `judgement` only when a person or independent judge must assess a reason or evidence trail.
 5. Do not report a final pass rate until D3 is integrated. Re-run the full set from clean state after D3 changes the guardrail outcome or gate.
 

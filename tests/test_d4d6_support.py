@@ -1,6 +1,8 @@
+import json
+from pathlib import Path
 import unittest
 
-from src.d4d6_support import CostInputs, break_even_success_rate, code_check, cost_summary, trial_count
+from src.d4d6_support import CostInputs, break_even_success_rate, code_check, cost_summary, trial_count, validate_cases
 
 
 class D4D6SupportTests(unittest.TestCase):
@@ -20,3 +22,11 @@ class D4D6SupportTests(unittest.TestCase):
 
     def test_break_even_is_calculated(self):
         self.assertAlmostEqual(break_even_success_rate(0.005, 0.657, 7.60), 0.9142105, places=6)
+
+    def test_team_d4_set_has_55_real_labelled_cases(self):
+        root = Path(__file__).resolve().parents[1]
+        cases = json.loads((root / "templates" / "d4_cases_template.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(cases), 55)
+        self.assertEqual(validate_cases(cases), [])
+        self.assertGreaterEqual(sum(case["is_negative"] for case in cases), 10)
+        self.assertTrue(all(not case["case_id"].startswith("TEAM-") for case in cases))

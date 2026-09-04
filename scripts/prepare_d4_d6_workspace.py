@@ -10,19 +10,41 @@ ROOT = Path(__file__).resolve().parents[1]
 TEMPLATES = ROOT / "templates"
 TEMPLATES.mkdir(exist_ok=True)
 
+labels = json.loads((ROOT / "expected_outcomes_B.json").read_text(encoding="utf-8"))
+referrals = {
+    row["referral_id"]: row
+    for row in json.loads((ROOT / "data_B" / "referrals.json").read_text(encoding="utf-8"))
+}
+
 case_rows = []
-for number in range(1, 41):
-    negative = 33 <= number <= 40
+for number, label in enumerate(labels, start=1):
+    case_id = label["case_id"]
+    decision = label["expected_decision"]
+    negative = decision != "book"
+    expected = {"decision": decision}
+    for field in ("trigger", "missing", "booked"):
+        if field in label:
+            expected[field] = label[field]
+    # A small, named subset receives a human or independent-judge evidence check;
+    # every case still has its outcome checked by code.
+    judgement = number in {2, 5, 12, 18, 24, 31}
     case_rows.append(
         {
-            "case_id": f"TEAM-B-{number:02d}",
+            "case_id": case_id,
             "owner": "ASSIGN_OWNER",
             "is_negative": negative,
-            "wrong_behaviour_to_catch": "REPLACE_WITH_A_SPECIFIC_UNSAFE_ACTION" if negative else "",
-            "fixture_note": "Describe the referral or added fixture record.",
-            "expected": {"decision": "REPLACE_WITH_book_request_information_OR_escalate", "trigger": "REPLACE_WITH_GROUND_TRUTH_TRIGGER"},
-            "check_type": "code",
-            "judgement_question": "Leave blank for code checks; otherwise state the human/judge question.",
+            "wrong_behaviour_to_catch": (
+                "Do not book or stage a booking when the correct outcome is "
+                f"{decision}: {label.get('trigger') or label.get('missing')}."
+                if negative else ""
+            ),
+            "fixture_note": referrals[case_id]["clinical_summary"],
+            "expected": expected,
+            "check_type": "judgement" if judgement else "code",
+            "judgement_question": (
+                "Does the stated reason and evidence trail support the labelled outcome?"
+                if judgement else ""
+            ),
         }
     )
 
@@ -57,7 +79,7 @@ for name, data in {
 }.items():
     (TEMPLATES / name).write_text(json.dumps(data, indent=2), encoding="utf-8")
 
-print("Created templates/d4_cases_template.json (40 rows; 8 negative cases).")
+print(f"Created templates/d4_cases_template.json ({len(case_rows)} real labelled rows; {sum(row['is_negative'] for row in case_rows)} negative cases).")
 print("Created templates/d5_models_template.json.")
 print("Created templates/d6_inputs_template.json.")
 print("Replace every REPLACE_ or MEASURED_ value before reporting a result.")
