@@ -1,64 +1,52 @@
-# D2(b) interface handoff: four tool contracts
+# D2(b) descriptor handoff — canonical root runner
 
-Interface version: 0.1  
-Audience: D2(b) tool-descriptor owner  
-Status: implementation-ready baseline. Keep names and field names unchanged unless the team records a versioned change.
+The submit-and-run path for Problem B is the repository root:
 
-This handoff freezes the four minimal tools selected in D2(a). All returned data is fixture-backed and non-identifying. No tool creates a real booking or sends a patient message.
+```text
+run_eval.py -> agent.py -> tools.py
+```
 
-## 1. get_referral_context
+`src/` remains a D4/D6 workbook-support module. It is not the agent invoked
+by `run_eval.py` and must not be treated as a second submission runner.
 
-Purpose: retrieve the named referral with the specialty policy data needed to begin the case.
+## Callable Problem B tools
 
-Input: `{"referral_id": "string"}`
+The full six-field contracts are the dictionaries in `tools.py`. The live
+prompt is built from exactly these six callable tools:
 
-Output:
+| Tool | Role | Write-like? |
+| --- | --- | --- |
+| `get_referral` | Read the referral record. | No |
+| `check_referral_criteria` | Report hostile instruction text, red flags, specialty fit, missing tests, and urgency. | No |
+| `lookup_patient` | Read existing appointments for the duplicate check. | No |
+| `as_of` | Read the fixed date used for urgency windows. | No |
+| `get_clinic_slots` | Read legal available slots in a named band/window. | No |
+| `book_slot` | Record the simulated booking. It is the only gated action. | Yes |
 
-    {
-      "referral": {"referral_id": "string", "patient_id": "string", "specialty": "string", "date_received": "YYYY-MM-DD", "clinical_summary": "string", "tests_attached": ["string"]},
-      "specialty": {"code": "string", "name": "string", "mandatory_tests": [{"code": "string", "name": "string"}], "red_flag_terms": ["string"], "treats": ["string"]},
-      "as_of": "YYYY-MM-DD",
-      "urgency_bands": ["urgent", "soon", "routine"]
-    }
+`check_referral_criteria` reports facts; it does not make a clinical
+decision. The routing order is: hostile instruction, red flag, wrong
+department, missing mandatory test, duplicate appointment, then slot search.
+The code layer also blocks a booking if hostile free text is detected, even if
+a live model tries to skip the normal criteria call.
 
-## 2. get_existing_appointments
+## v1 -> v2 experiment
 
-Purpose: retrieve future appointments so deterministic code can detect a same-specialty duplicate.
+Both versions use the same function names and argument names.
 
-Input: `{"patient_id": "string"}`
+- **v1** provides deliberately generic six-field descriptions. It is the
+  baseline: callable, but it does not explain domain failures or routing.
+- **v2** provides the detailed descriptions in `tools.py`: exact input and
+  output shapes, empty/None meaning, urgency-band constraint, and gate
+  placement.
 
-Output:
+The version is selected by `config.PROMPT_VERSION` or at the command line:
 
-    {"patient_id": "string", "existing_appointments": [{"specialty": "string", "clinic": "string", "date": "YYYY-MM-DD", "time": "HH:MM"}]}
+```bash
+python run_eval.py --prompt --prompt-version v1
+python run_eval.py --prompt --prompt-version v2
+```
 
-An empty list is valid. The tool reports facts only; it does not decide duplication.
-
-## 3. find_eligible_slots
-
-Purpose: return available candidate slots for one specialty and urgency band.
-
-Input: `{"specialty": "string", "urgency_band": "urgent | soon | routine"}`
-
-Output:
-
-    {"specialty": "string", "urgency_band": "urgent | soon | routine", "slots": [{"clinic": "string", "specialty": "string", "band": "urgent | soon | routine", "date": "YYYY-MM-DD", "time": "HH:MM", "capacity_remaining": 1}]}
-
-The implementation returns only slots with positive capacity that match the requested specialty and urgency window, ordered by date then time.
-
-## 4. stage_booking_intent
-
-Purpose: record a local staged intent after deterministic booking gates pass. It is the only write-like operation.
-
-Input:
-
-    {"referral_id": "string", "patient_id": "string", "specialty": "string", "slot": {"clinic": "string", "date": "YYYY-MM-DD", "time": "HH:MM"}, "evidence": ["string"]}
-
-Output:
-
-    {"status": "staged", "booking_intent_id": "string", "gate": "passed", "contact_method": "sms | phone | email"}
-
-The tool must not create a real appointment, expose contact details, or send a notification. Call it only after policy, duplicate, capacity, and urgency gates pass.
-
-## D2(c) dependency rule
-
-get_existing_appointments and find_eligible_slots may run in parallel only after get_referral_context completes. stage_booking_intent always runs alone after its gates are evaluated.
+The command prints the exact system prompt and its rough token size. A live
+D5(b) comparison must record the version, model, real provider token counts,
+trial count, pass rate, and price source. The scripted D5(a) run is not valid
+evidence that either descriptor version improves a live model.
