@@ -29,6 +29,7 @@ import json
 import urllib.request
 
 import config
+from problem_b_scripts import available_case_ids, build_script
 
 
 # =====================================================================
@@ -141,7 +142,10 @@ class ScriptedBackend:
     name = "scripted"
 
     def __init__(self, case_id):
-        if case_id not in SCRIPTS:
+        steps = SCRIPTS.get(case_id)
+        if steps is None and config.PROBLEM == "B":
+            steps = build_script(case_id)
+        if steps is None:
             raise SystemExit(
                 "\n  No script for case %r.\n"
                 "  The scripted backend replays moves you wrote down; it does\n"
@@ -150,7 +154,7 @@ class ScriptedBackend:
                 "    2. set BACKEND = \"live\" in config.py (this costs money).\n"
                 "  Scripted cases so far: %s\n"
                 % (case_id, case_id, ", ".join(sorted(SCRIPTS))))
-        self.steps = SCRIPTS[case_id]
+        self.steps = steps
         self.i = 0
 
     def next_move(self, transcript):
@@ -185,19 +189,26 @@ class LiveBackend:
         self.case_id = case_id
         self.tools = tool_descriptors
         self.system_prompt = system_prompt
+        self._last_usage = None
 
     def next_move(self, transcript):
         messages = [{"role": "system", "content": self.system_prompt}]
         for entry in transcript:
             messages.append({"role": entry["role"], "content": entry["content"]})
-        raw = _live_call(messages)
+        raw, self._last_usage = _live_call(messages)
         return _parse_move(raw)
 
-    @staticmethod
-    def token_estimate(transcript):
-        # Replace with the usage numbers the API returns. Estimating here
-        # and calling it measured is the mistake D6 punishes.
-        return 0, 0
+    def token_estimate(self, transcript):
+        """Return provider-reported usage for the immediately preceding call.
+
+        A live D5(b) run without usage metadata is not a measured run, so it
+        fails loudly instead of quietly writing zero-token "measurements".
+        """
+        if self._last_usage is None:
+            raise RuntimeError("Live backend received no provider token usage.")
+        usage = self._last_usage
+        self._last_usage = None
+        return usage
 
 
 def _parse_move(text):
@@ -235,7 +246,22 @@ def _live_call(messages):
                  "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=60) as r:
         payload = json.load(r)
-    return payload["choices"][0]["message"]["content"]
+    usage = payload.get("usage") or {}
+    tokens_in = usage.get("prompt_tokens")
+    tokens_out = usage.get("completion_tokens")
+    if not isinstance(tokens_in, int) or not isinstance(tokens_out, int):
+        raise RuntimeError(
+            "Live provider response did not include integer prompt_tokens and "
+            "completion_tokens; do not report this run as measured D5(b) data.")
+    return payload["choices"][0]["message"]["content"], (tokens_in, tokens_out)
+
+
+def available_scripted_case_ids(problem=None):
+    """Cases the default offline battery can execute from a clean clone."""
+    problem = problem or config.PROBLEM
+    if problem == "B":
+        return available_case_ids()
+    return sorted(SCRIPTS)
 
 
 def make_backend(case_id, tool_descriptors=None, system_prompt=""):

@@ -63,7 +63,7 @@ class Guardrails:
         guard deleted: 8 turns, no answer, 1.6x the cost, and NO
         exception raised. It did not crash. It burned money in a circle.
         """
-        signature = (tool, repr(sorted(args.items())))
+        signature = (tool, _freeze(args))
         if signature in self.seen_actions:
             self._fire("duplicate_action", "%s repeated" % tool)
             raise GuardrailStop("duplicate_action",
@@ -98,3 +98,14 @@ class Guardrails:
     # ---- bookkeeping ------------------------------------------------
     def _fire(self, kind, detail):
         self.fired.append({"guardrail": kind, "detail": detail})
+
+
+def _freeze(value):
+    """Turn nested action arguments into a stable, hashable signature."""
+    if isinstance(value, dict):
+        return tuple(sorted((key, _freeze(item)) for key, item in value.items()))
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze(item) for item in value)
+    if isinstance(value, set):
+        return tuple(sorted(_freeze(item) for item in value))
+    return value

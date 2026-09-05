@@ -26,6 +26,11 @@ import os
 # ─────────────────────────────────────────────────────────────────────
 BACKEND = "scripted"          # "scripted" | "live"
 
+# D2(b): choose the exact descriptor payload sent to a LIVE model. The
+# scripted backend never sees a prompt, so v1/v2 performance comparisons
+# belong to the live battery and must report this value.
+PROMPT_VERSION = "v2"         # "v1" | "v2"
+
 MODEL = "openai/gpt-4o-mini"  # only used when BACKEND == "live"
 BASE_URL = "https://openrouter.ai/api/v1"
 
@@ -141,6 +146,7 @@ def summary():
     where = "FREE, deterministic" if BACKEND == "scripted" else "LIVE - this costs money"
     model = "(no model)" if BACKEND == "scripted" else MODEL
     line = ("BACKEND=%s  %s  |  PROBLEM=%s  |  model=%s  |  "
-            "cap=%d turns  |  autonomy=%s"
-            % (BACKEND, where, PROBLEM, model, MAX_TURNS, AUTONOMY))
+            "descriptors=%s  |  cap=%d turns  |  autonomy=%s"
+            % (BACKEND, where, PROBLEM, model, PROMPT_VERSION,
+               MAX_TURNS, AUTONOMY))
     return line + _stale_bytecode_warning()

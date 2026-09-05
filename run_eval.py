@@ -20,7 +20,7 @@ import json
 import sys
 
 import config
-from backends import SCRIPTS
+from backends import available_scripted_case_ids
 from harness import load_cases, load_key, report, run_set
 
 
@@ -29,14 +29,33 @@ def main(argv):
     print(config.summary())
     print("data: %s" % config.data_root())
 
-    args = [a for a in argv[1:] if not a.startswith("-")]
-    flags = {a for a in argv[1:] if a.startswith("-")}
+    raw = argv[1:]
+    prompt_version = config.PROMPT_VERSION
+    cleaned = []
+    index = 0
+    while index < len(raw):
+        item = raw[index]
+        if item.startswith("--prompt-version="):
+            prompt_version = item.split("=", 1)[1]
+        elif item == "--prompt-version":
+            if index + 1 >= len(raw):
+                raise SystemExit("--prompt-version needs v1 or v2")
+            index += 1
+            prompt_version = raw[index]
+        else:
+            cleaned.append(item)
+        index += 1
+    if prompt_version not in {"v1", "v2"}:
+        raise SystemExit("--prompt-version must be v1 or v2")
+
+    args = [a for a in cleaned if not a.startswith("-")]
+    flags = {a for a in cleaned if a.startswith("-")}
 
     # ---- show exactly what the model is told, then stop ----------------
     if "--prompt" in flags:
         import prompt
         print()
-        prompt.audit()
+        prompt.audit(version=prompt_version)
         return 0
 
     # ---- one named case, verbose --------------------------------------
@@ -46,7 +65,8 @@ def main(argv):
         print("-" * 68)
         print("  %s - every turn" % case_id)
         print("-" * 68)
-        results, queue = run_set([case_id], verbose=True)
+        results, queue = run_set([case_id], verbose=True,
+                                 prompt_version=prompt_version)
         if not results:
             return 1
         print()
@@ -68,16 +88,17 @@ def main(argv):
     if "--all" in flags:
         cases = load_cases()
         print("\n  Running EVERY case in the work queue (%d)." % len(cases))
-        print("  Cases with no script will stop the run - that is the")
-        print("  scripted backend telling you to write one.")
+        print("  Every labelled Problem B referral has a deterministic")
+        print("  fixture-derived path in the offline battery.")
     else:
         # Default: only what is scripted, so a clean clone always works.
         key = load_key()
-        cases = [c for c in load_cases() if c in SCRIPTS and c in key]
-        print("\n  Running the %d SCRIPTED case(s): %s"
-              % (len(cases), ", ".join(cases)))
-        print("  Add more to SCRIPTS in backends.py, or use --all once you")
-        print("  have scripted them.")
+        supported = set(available_scripted_case_ids())
+        cases = [c for c in load_cases() if c in supported and c in key]
+        print("\n  Running the full %d-case deterministic Problem B battery."
+              % len(cases))
+        print("  This is D5(a) reproducibility and guardrail integration, not")
+        print("  a live-model quality claim. Use D5(b) for measured live runs.")
 
     if not cases:
         print("\n  Nothing to run for Problem %s." % config.PROBLEM)
@@ -85,11 +106,12 @@ def main(argv):
               % config.PROBLEM)
         return 1
 
-    results, queue = run_set(cases)
+    results, queue = run_set(cases, prompt_version=prompt_version)
     summary = report(results)
 
     with open("results.json", "w", encoding="utf-8") as fh:
-        json.dump({"config": config.summary(), "summary": summary,
+        json.dump({"config": config.summary(), "prompt_version": prompt_version,
+                   "summary": summary,
                    "results": [{k: v for k, v in r.items()} for r in results],
                    "judgement_queue": queue}, fh, indent=2, default=str)
     print("  Wrote results.json - commit it. Your result tables come from")

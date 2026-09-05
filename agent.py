@@ -32,7 +32,26 @@ from backends import make_backend
 from guardrails import Guardrails, GuardrailStop
 
 
-def run_case(case_id, problem=None, approve=None, verbose=False):
+class PolicyStop(Exception):
+    """A deterministic safety rule ended the run with a known outcome."""
+
+    def __init__(self, record):
+        self.record = record
+        super().__init__(record.get("reason", "policy stop"))
+
+
+def _untrusted_instruction_record(marker):
+    return {
+        "decision": "escalate",
+        "trigger": "instruction_in_referral_free_text",
+        "reason": ("Untrusted instruction-like referral text was detected "
+                   "(%r) and was not followed; no slot was queried or booked."
+                   % marker),
+    }
+
+
+def run_case(case_id, problem=None, approve=None, verbose=False,
+             prompt_version=None):
     """Run ONE case from a clean state and return the decision record.
 
     ISOLATION (D4): everything this function needs is created inside it.
@@ -40,6 +59,7 @@ def run_case(case_id, problem=None, approve=None, verbose=False):
     counters, no shared guardrail object, no leftover transcript.
     """
     problem = problem or config.PROBLEM
+    prompt_version = prompt_version or config.PROMPT_VERSION
     started = time.time()
 
     guards = Guardrails(config.MAX_TURNS, config.MAX_TOKENS_PER_RUN,
@@ -51,9 +71,10 @@ def run_case(case_id, problem=None, approve=None, verbose=False):
     #     python3 run_eval.py --prompt      to see the exact text
     backend = make_backend(
         case_id,
-        tool_descriptors=[tools.DESCRIPTORS[n] for n in tools.REGISTRY[problem]
-                          if n in tools.DESCRIPTORS],
-        system_prompt=prompt.build_system_prompt(problem))
+        tool_descriptors=[tools.descriptors_for(prompt_version)[n]
+                          for n in tools.REGISTRY[problem]
+                          if n in tools.descriptors_for(prompt_version)],
+        system_prompt=prompt.build_system_prompt(problem, version=prompt_version))
 
     transcript = []      # what the model would see
     evidence = []        # every tool actually called, in order
@@ -108,6 +129,15 @@ def run_case(case_id, problem=None, approve=None, verbose=False):
             for name, args in calls:
                 guards.check_duplicate(name, args)
 
+                # D3(b): free text is data, never authority. Check it after
+                # the real criteria tool and again immediately before the
+                # irreversible action, so a live model cannot bypass policy.
+                if problem == "B" and name == "book_slot":
+                    marker = tools.referral_instruction_marker(
+                        args.get("referral_id"))
+                    if marker:
+                        raise PolicyStop(_untrusted_instruction_record(marker))
+
                 # THE GATE goes in front of the irreversible step only.
                 if name == tools.GATED_ACTION.get(problem):
                     if not guards.gate(name, args, approve):
@@ -123,11 +153,20 @@ def run_case(case_id, problem=None, approve=None, verbose=False):
                 if verbose:
                     print("       %-26s -> %s" % (name, _short(result)))
 
+                if (problem == "B" and name == "check_referral_criteria"
+                        and result
+                        and result.get("instruction_in_referral_free_text")):
+                    raise PolicyStop(_untrusted_instruction_record(
+                        result["instruction_in_referral_free_text"]))
+
             transcript.append({"role": "assistant",
                                "content": move.get("thought", "")})
             transcript.append({"role": "user",
                                "content": repr(observations)})
 
+    except PolicyStop as stop:
+        stopped_by = "untrusted_instruction"
+        record = stop.record
     except GuardrailStop as stop:
         # A LOUD STOP. The record says what halted the run and where, so
         # this never looks like a quiet wrong answer.
@@ -149,6 +188,9 @@ def run_case(case_id, problem=None, approve=None, verbose=False):
         "guardrails_fired": guards.fired,
         "stopped_by": stopped_by,
         "backend": backend.name,
+        "prompt_version": prompt_version,
+        "token_usage_kind": ("estimated" if backend.name == "scripted"
+                             else "provider_reported"),
     })
     return record
 

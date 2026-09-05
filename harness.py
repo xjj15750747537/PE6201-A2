@@ -90,6 +90,14 @@ def code_check(record, expected):
             fails.append("trigger %r, expected %r"
                          % (record.get("trigger"), expected["trigger"]))
 
+    # A request must identify the exact missing item.  A bare
+    # "request_information" outcome is not enough: the person receiving the
+    # request needs to know which mandatory test to supply.
+    if expected.get("missing"):
+        if record.get("missing") != expected["missing"]:
+            fails.append("missing %r, expected %r"
+                         % (record.get("missing"), expected["missing"]))
+
     # A booking must book the RIGHT slot. Problem B only.
     if expected.get("booked"):
         got = record.get("booked") or {}
@@ -124,7 +132,8 @@ def prepare_judgement_check(record, expected):
 # =====================================================================
 # RUNNING THE SET
 # =====================================================================
-def run_set(case_ids=None, problem=None, trials_for=None, verbose=False):
+def run_set(case_ids=None, problem=None, trials_for=None, verbose=False,
+            prompt_version=None):
     """Run cases and grade them.
 
     `trials_for(case_id) -> int` decides how many trials each case gets.
@@ -148,7 +157,8 @@ def run_set(case_ids=None, problem=None, trials_for=None, verbose=False):
             continue
 
         for trial in range(1, trials_for(cid) + 1):
-            record = run_case(cid, problem=problem, verbose=verbose)
+            record = run_case(cid, problem=problem, verbose=verbose,
+                              prompt_version=prompt_version)
             passed, fails = code_check(record, expected)
             results.append({"case_id": cid, "trial": trial, "passed": passed,
                             "fails": fails, "record": record,
@@ -189,8 +199,9 @@ def report(results):
     print("  worst case turns    %s" % (max(turns) if turns else "-"))
     print("  hit the step cap    %d"
           % sum(1 for r in results if r["record"]["stopped_by"] == "step_cap"))
-    print("  total cost          US$%.4f   (%s backend)"
-          % (cost, results[0]["record"]["backend"] if results else "-"))
+    backend = results[0]["record"]["backend"] if results else "-"
+    cost_label = "estimated cost" if backend == "scripted" else "provider-reported cost"
+    print("  %-19s US$%.4f   (%s backend)" % (cost_label, cost, backend))
     print()
 
     failures = [r for r in results if not r["passed"]]
@@ -214,4 +225,5 @@ def report(results):
     return {"trials": total, "passed": passed,
             "pass_rate": passed / total if total else 0.0,
             "median_turns": statistics.median(turns) if turns else None,
-            "cost_usd": cost}
+            "cost_usd": cost,
+            "cost_kind": "estimated" if backend == "scripted" else "provider_reported"}
