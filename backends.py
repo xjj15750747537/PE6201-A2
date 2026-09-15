@@ -193,6 +193,17 @@ class LiveBackend:
 
     def next_move(self, transcript):
         messages = [{"role": "system", "content": self.system_prompt}]
+        # The scripted backend receives a case id in its constructor.  A live
+        # model needs the same starting context explicitly, otherwise its
+        # first turn has no referral id to look up.
+        if not transcript:
+            messages.append({
+                "role": "user",
+                "content": (
+                    "Start Problem B referral case %s. Use the available "
+                    "tools and return only the required JSON." % self.case_id
+                ),
+            })
         for entry in transcript:
             messages.append({"role": entry["role"], "content": entry["content"]})
         raw, self._last_usage = _live_call(messages)

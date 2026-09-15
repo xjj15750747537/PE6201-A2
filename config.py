@@ -24,14 +24,14 @@ import os
 # ─────────────────────────────────────────────────────────────────────
 # THE THREE STRINGS. Change these, change nothing else.
 # ─────────────────────────────────────────────────────────────────────
-BACKEND = "scripted"          # "scripted" | "live"
+BACKEND = os.environ.get("A2_BACKEND", "scripted")  # "scripted" | "live"
 
 # D2(b): choose the exact descriptor payload sent to a LIVE model. The
 # scripted backend never sees a prompt, so v1/v2 performance comparisons
 # belong to the live battery and must report this value.
-PROMPT_VERSION = "v2"         # "v1" | "v2"
+PROMPT_VERSION = os.environ.get("A2_PROMPT_VERSION", "v2")  # "v1" | "v2"
 
-MODEL = "openai/gpt-4o-mini"  # only used when BACKEND == "live"
+MODEL = os.environ.get("A2_MODEL", "openai/gpt-4o-mini")  # only used when BACKEND == "live"
 BASE_URL = "https://openrouter.ai/api/v1"
 
 # Your key never goes in this file. Put it in the environment:
