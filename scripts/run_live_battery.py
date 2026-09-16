@@ -11,6 +11,7 @@ times.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -69,17 +70,27 @@ def d5_rows(fragment: dict) -> list[dict]:
 
 def rebuild_d5_runs() -> int:
     rows = []
-    seen_run_names: set[str] = set()
+    seen_run_names: dict[str, tuple[str, Path]] = {}
     for path in sorted(LIVE_RUNS.glob("*.json")):
-        fragment = json.loads(path.read_text(encoding="utf-8"))
+        raw_fragment = path.read_bytes()
+        fragment = json.loads(raw_fragment.decode("utf-8"))
         run_name = str(fragment.get("run_name", ""))
         if not run_name:
             raise ValueError(f"{path.name} has no run_name.")
+        digest = hashlib.sha256(raw_fragment).hexdigest()
         if run_name in seen_run_names:
+            earlier_digest, earlier_path = seen_run_names[run_name]
+            if digest == earlier_digest:
+                print(
+                    f"Skipping byte-identical duplicate evidence {path.name}; "
+                    f"already included {earlier_path.name}."
+                )
+                continue
             raise ValueError(
-                f"Duplicate measured run_name {run_name!r}. Keep one immutable "
-                "fragment per run name; do not merge an ambiguous aggregate.")
-        seen_run_names.add(run_name)
+                f"Conflicting measured run_name {run_name!r} in {earlier_path.name} "
+                f"and {path.name}. Keep immutable evidence, but do not merge an "
+                "ambiguous aggregate.")
+        seen_run_names[run_name] = (digest, path)
         rows.extend(d5_rows(fragment))
     (RESULTS / "d5_runs.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
     return len(rows)
