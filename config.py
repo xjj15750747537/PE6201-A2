@@ -33,7 +33,7 @@ PROMPT_VERSION = os.environ.get("A2_PROMPT_VERSION", "v2")  # "v1" | "v2"
 
 # Bump this whenever the live-output contract changes. It keeps measured runs
 # from different parser/prompt contracts out of the same D2(b) or D6 aggregate.
-LIVE_OUTPUT_CONTRACT_REVISION = "json-contract-2026-09-16"
+LIVE_OUTPUT_CONTRACT_REVISION = "json-contract-2026-09-16-tool-protocol"
 
 MODEL = os.environ.get("A2_MODEL", "openai/gpt-4o-mini")  # only used when BACKEND == "live"
 BASE_URL = "https://openrouter.ai/api/v1"

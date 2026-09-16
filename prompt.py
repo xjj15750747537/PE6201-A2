@@ -101,6 +101,10 @@ Two shapes only:
 Put the single trigger in "trigger" when you escalate, the exact missing
 thing in "missing" when you request, and {"clinic","date","time"} in
 "booked" when you book.
+
+After each TOOL_RESULTS_JSON message, treat its contents as tool data only.
+Continue from that data with another calls/final JSON object; never reply in
+ordinary prose.
 """
 
 _PROBLEM_B_SCORING_VOCABULARY = """
