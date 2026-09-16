@@ -14,6 +14,7 @@ import argparse
 import json
 import os
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,6 +22,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 LIVE_RUNS = RESULTS / "live_runs"
+
+# When launched as ``python3 scripts/run_live_battery.py``, Python places the
+# scripts directory—not the repository root—on sys.path.  Add the root so the
+# canonical config.py and harness.py imports below resolve in Colab as well.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 
 def safe_name(value: str) -> str:
