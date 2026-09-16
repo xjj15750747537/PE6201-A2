@@ -72,15 +72,17 @@ def d5() -> None:
         missing = required - set(row)
         if missing:
             raise ValueError(f"D5 run is missing: {', '.join(sorted(missing))}")
-    grouped: dict[tuple[str, str], list[dict[str, object]]] = {}
+    grouped: dict[tuple[str, str, str], list[dict[str, object]]] = {}
     for row in runs:
-        key = (str(row["model"]), str(row.get("prompt_version", "unknown")))
+        key = (str(row["model"]), str(row.get("prompt_version", "unknown")),
+               str(row.get("prompt_contract_revision", "legacy-unversioned")))
         grouped.setdefault(key, []).append(row)
     summary = []
-    for (model, prompt_version), rows in sorted(grouped.items()):
+    for (model, prompt_version, revision), rows in sorted(grouped.items()):
         summary.append({
             "model": model,
             "prompt_version": prompt_version,
+            "prompt_contract_revision": revision,
             "family": rows[0]["family"],
             "price_tier": rows[0]["price_tier"],
             "runs": len(rows),

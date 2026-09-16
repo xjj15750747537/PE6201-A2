@@ -50,6 +50,8 @@ def d5_rows(fragment: dict) -> list[dict]:
             "family": fragment["family"],
             "price_tier": fragment["price_tier"],
             "prompt_version": fragment["prompt_version"],
+            "prompt_contract_revision": fragment.get(
+                "prompt_contract_revision", "legacy-unversioned"),
             "input_price_per_million": fragment["input_price_per_million"],
             "output_price_per_million": fragment["output_price_per_million"],
             "case_id": item["case_id"],
@@ -67,8 +69,18 @@ def d5_rows(fragment: dict) -> list[dict]:
 
 def rebuild_d5_runs() -> int:
     rows = []
+    seen_run_names: set[str] = set()
     for path in sorted(LIVE_RUNS.glob("*.json")):
-        rows.extend(d5_rows(json.loads(path.read_text(encoding="utf-8"))))
+        fragment = json.loads(path.read_text(encoding="utf-8"))
+        run_name = str(fragment.get("run_name", ""))
+        if not run_name:
+            raise ValueError(f"{path.name} has no run_name.")
+        if run_name in seen_run_names:
+            raise ValueError(
+                f"Duplicate measured run_name {run_name!r}. Keep one immutable "
+                "fragment per run name; do not merge an ambiguous aggregate.")
+        seen_run_names.add(run_name)
+        rows.extend(d5_rows(fragment))
     (RESULTS / "d5_runs.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
     return len(rows)
 
@@ -132,6 +144,7 @@ def main() -> None:
         "family": args.family,
         "price_tier": args.price_tier,
         "prompt_version": args.prompt_version,
+        "prompt_contract_revision": config.LIVE_OUTPUT_CONTRACT_REVISION,
         "input_price_per_million": args.input_price_per_million,
         "output_price_per_million": args.output_price_per_million,
         "created_utc": datetime.now(timezone.utc).isoformat(),

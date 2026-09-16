@@ -11,6 +11,8 @@ import argparse
 import json
 from pathlib import Path
 
+import config
+
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNS = ROOT / "results" / "d5_runs.json"
@@ -40,9 +42,11 @@ def main() -> None:
     if not RUNS.exists():
         raise SystemExit("Missing results/d5_runs.json. Run a measured D5(b) battery first.")
     rows = [row for row in json.loads(RUNS.read_text(encoding="utf-8"))
-            if row["model"] == args.model and row.get("prompt_version") == args.prompt_version]
+            if (row["model"] == args.model
+                and row.get("prompt_version") == args.prompt_version
+                and row.get("prompt_contract_revision") == config.LIVE_OUTPUT_CONTRACT_REVISION)]
     if not rows:
-        raise SystemExit("No measured rows match this model and prompt version.")
+        raise SystemExit("No measured rows match this model, prompt version, and current live-output contract. Run the repaired battery before D6.")
     if min(args.retrieval_and_tool_fees, args.failure_cost, args.fixed_monthly_cost) < 0 or args.monthly_volume < 1:
         raise SystemExit("D6 public cost inputs must be non-negative and monthly volume must be at least one.")
     values = {

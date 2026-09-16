@@ -26,16 +26,20 @@ def main() -> None:
     if not RUNS.exists():
         raise SystemExit("Missing results/d5_runs.json. Run both measured v1 and v2 batteries first.")
     rows = json.loads(RUNS.read_text(encoding="utf-8"))
-    grouped: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
+    # Compare only versions that share one output/parsing contract. Older
+    # immutable fragments remain evidence but must not be silently mixed in.
+    grouped: dict[tuple[str, str], dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
     for row in rows:
-        grouped[str(row["model"])][str(row.get("prompt_version", ""))].append(row)
+        key = (str(row["model"]), str(row.get("prompt_contract_revision", "legacy-unversioned")))
+        grouped[key][str(row.get("prompt_version", ""))].append(row)
     comparisons = []
-    for model, versions in sorted(grouped.items()):
+    for (model, revision), versions in sorted(grouped.items()):
         if not versions.get("v1") or not versions.get("v2"):
             continue
         v1, v2 = metrics(versions["v1"]), metrics(versions["v2"])
         comparisons.append({
             "model": model,
+            "prompt_contract_revision": revision,
             "v1": v1,
             "v2": v2,
             "v2_minus_v1": {key: v2[key] - v1[key] for key in v1},

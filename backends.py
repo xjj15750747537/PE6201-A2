@@ -26,6 +26,7 @@ moves is how you test the parts you wrote.
 ====================================================================
 """
 import json
+import re
 import urllib.request
 
 import config
@@ -223,14 +224,74 @@ class LiveBackend:
 
 
 def _parse_move(text):
-    """The model must answer in JSON. Anything else is a run you cannot
-    grade, so say so loudly rather than guessing."""
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
+    """Parse one model move without treating harmless Markdown as a failure.
+
+    The live prompt asks for one JSON object.  Some OpenRouter models still
+    wrap an otherwise valid object in a ``json`` code fence or add a short
+    preamble.  Accept those transport-only wrappers, but validate the object
+    before the agent can act on it.  We never try to repair malformed JSON or
+    invent a decision from prose.
+    """
+    def invalid(detail):
         return {"final": {"decision": "escalate",
-                          "reason": "model did not return parseable JSON"},
-                "thought": "unparseable: %s" % text[:200]}
+                          "reason": "model did not return parseable JSON",
+                          "parse_error": detail},
+                "thought": "unparseable model move"}
+
+    if not isinstance(text, str):
+        return invalid("response was not text")
+
+    stripped = text.strip().lstrip("\ufeff")
+    candidates = [stripped]
+    fenced = re.fullmatch(r"```(?:json)?\s*(.*?)\s*```", stripped,
+                          flags=re.IGNORECASE | re.DOTALL)
+    if fenced:
+        candidates.append(fenced.group(1).strip())
+
+    # A short preamble is common even when a model was told not to add one.
+    # Parse from the first object only when the remaining suffix is whitespace.
+    first_object = stripped.find("{")
+    if first_object > 0:
+        candidates.append(stripped[first_object:])
+
+    last_error = "no JSON object found"
+    for candidate in candidates:
+        try:
+            payload, end = json.JSONDecoder().raw_decode(candidate)
+        except json.JSONDecodeError as error:
+            last_error = error.msg
+            continue
+        if candidate[end:].strip():
+            last_error = "text followed the JSON object"
+            continue
+        error = _move_contract_error(payload)
+        if error is None:
+            return payload
+        last_error = error
+    return invalid(last_error)
+
+
+def _move_contract_error(payload):
+    """Return a message unless *payload* is one safe agent move."""
+    if not isinstance(payload, dict):
+        return "JSON value was not an object"
+    has_final = "final" in payload
+    has_calls = "calls" in payload
+    if has_final == has_calls:
+        return "move must contain exactly one of final or calls"
+    if has_final:
+        final = payload["final"]
+        if not isinstance(final, dict) or not isinstance(final.get("decision"), str):
+            return "final move needs an object with a string decision"
+        return None
+    calls = payload["calls"]
+    if not isinstance(calls, list) or not calls:
+        return "calls must be a non-empty list"
+    for call in calls:
+        if (not isinstance(call, (list, tuple)) or len(call) != 2
+                or not isinstance(call[0], str) or not isinstance(call[1], dict)):
+            return "every call must be [tool_name, arguments_object]"
+    return None
 
 
 def _live_call(messages):
