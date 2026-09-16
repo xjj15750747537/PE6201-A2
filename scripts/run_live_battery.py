@@ -3,7 +3,9 @@
 Each owner uses a private Colab Secret named OPENROUTER_API_KEY, enters only
 the public model metadata in the notebook, and receives one immutable result
 fragment under results/live_runs/.  All fragments are then combined into the
-submission-ready results/d5_runs.json file.
+submission-ready results/d5_runs.json file.  A full battery follows the
+assignment trial policy: booking cases run once and negative cases run three
+times.
 """
 
 from __future__ import annotations
@@ -97,16 +99,24 @@ def main() -> None:
     config.PRICE_IN = args.input_price_per_million
     config.PRICE_OUT = args.output_price_per_million
 
-    from harness import load_cases, report, run_set
+    from harness import load_cases, load_key, report, run_set
 
     cases = load_cases()
     if args.case_limit:
         if args.case_limit < 1:
             raise SystemExit("--case-limit must be positive or 0.")
         cases = cases[:args.case_limit]
-    print(f"LIVE D5(b): {len(cases)} cases, model={args.model}, descriptors={args.prompt_version}")
-    results, judgement_queue = run_set(cases, trials_for=lambda _case_id: 1,
-                                       prompt_version=args.prompt_version)
+    answer_key = load_key()
+    total_trials = sum(
+        1 if answer_key[case_id]["expected_decision"] == "book" else 3
+        for case_id in cases
+    )
+    print(
+        f"LIVE D5(b): {len(cases)} cases / {total_trials} trials "
+        f"(one booking, three negative), model={args.model}, "
+        f"descriptors={args.prompt_version}"
+    )
+    results, judgement_queue = run_set(cases, prompt_version=args.prompt_version)
     summary = report(results)
     fragment = {
         "run_name": run_name,
