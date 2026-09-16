@@ -23,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 LIVE_RUNS = RESULTS / "live_runs"
+EXCLUSIONS = RESULTS / "d5_fragment_exclusions.json"
 
 # When launched as ``python3 scripts/run_live_battery.py``, Python places the
 # scripts directory—not the repository root—on sys.path.  Add the root so the
@@ -68,10 +69,28 @@ def d5_rows(fragment: dict) -> list[dict]:
     return rows
 
 
+def load_fragment_exclusions() -> dict[str, str]:
+    """Return auditable, owner-confirmed fragment exclusions by file name."""
+    if not EXCLUSIONS.exists():
+        return {}
+    payload = json.loads(EXCLUSIONS.read_text(encoding="utf-8"))
+    exclusions = payload.get("excluded_fragments", {})
+    if not isinstance(exclusions, dict) or not all(
+        isinstance(name, str) and isinstance(reason, str)
+        for name, reason in exclusions.items()
+    ):
+        raise ValueError("d5_fragment_exclusions.json must map file names to reasons.")
+    return exclusions
+
+
 def rebuild_d5_runs() -> int:
     rows = []
+    exclusions = load_fragment_exclusions()
     seen_run_names: dict[str, tuple[str, Path]] = {}
     for path in sorted(LIVE_RUNS.glob("*.json")):
+        if path.name in exclusions:
+            print(f"Excluding {path.name}: {exclusions[path.name]}")
+            continue
         raw_fragment = path.read_bytes()
         fragment = json.loads(raw_fragment.decode("utf-8"))
         run_name = str(fragment.get("run_name", ""))

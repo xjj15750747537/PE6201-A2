@@ -1,0 +1,5 @@
+{
+  "excluded_fragments": {
+    "yao-claude-haiku45-v2-01.json": "Superseded duplicate: owner Lu Yao confirmed that yao-claude-haiku45-v2-01 (1).json is the valid Claude result on 2026-09-16. The excluded immutable file remains preserved for audit."
+  }
+}
