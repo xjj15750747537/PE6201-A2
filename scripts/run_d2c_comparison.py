@@ -1,53 +1,142 @@
-"""Compare sequential and dependency-aware parallel tool-turn schedules."""
+"""Compare D2(c) schedules using the submitted Problem B tool interface.
+
+This is deliberately a scripted, fixture-backed controlled experiment.  It
+does not call a model and its token/cost fields are estimates under the same
+instrumentation convention as the scripted runner.  Provider-reported D5(b)
+numbers remain the only measured live-model cost evidence.
+"""
 
 from __future__ import annotations
 
 import json
 import sys
+from concurrent.futures import ThreadPoolExecutor
+from datetime import date, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.backends import ScriptedBackend
-from src.contracts import FinalOutcome, ModelTurn, ToolAction
-from src.dependency_policy import DependencyPolicy
-from src.react_runner import ReActRunner, RunnerConfig
+import config
+import tools
 
 
-def fixture_executor(action: ToolAction) -> dict[str, object]:
-    observations = {
-        "get_referral_context": {"referral": {"referral_id": "REF-5602", "patient_id": "P-1180", "specialty": "OPH"}, "specialty": {"code": "OPH"}, "as_of": "2026-09-04", "urgency_bands": ["urgent", "soon", "routine"]},
-        "get_existing_appointments": {"patient_id": "P-1180", "existing_appointments": []},
-        "find_eligible_slots": {"specialty": "OPH", "urgency_band": "soon", "slots": [{"clinic": "Eye Clinic A", "specialty": "OPH", "band": "soon", "date": "2026-09-10", "time": "09:00", "capacity_remaining": 1}]},
-        "stage_booking_intent": {"status": "staged", "booking_intent_id": "INTENT-5602", "gate": "passed", "contact_method": "sms"},
+CASE_ID = "REF-5602"
+
+
+def _execute(stages, parallel):
+    """Run declared tool stages and retain the real fixture observations."""
+    trace = []
+    for stage in stages:
+        if parallel and len(stage) > 1:
+            with ThreadPoolExecutor(max_workers=len(stage)) as executor:
+                results = list(executor.map(
+                    lambda item: tools.call("B", item[0], item[1]), stage))
+        else:
+            results = [tools.call("B", name, args) for name, args in stage]
+        trace.extend((name, args, result)
+                     for (name, args), result in zip(stage, results))
+    return trace, len(stages)
+
+
+def _scripted_usage(tool_turns):
+    """Mirror backends.ScriptedBackend.token_estimate for tool turns + final."""
+    model_moves = tool_turns + 1
+    input_tokens = sum(1800 + 1200 * index for index in range(model_moves))
+    output_tokens = 120 * model_moves
+    cost = (input_tokens / 1_000_000 * config.PRICE_IN
+            + output_tokens / 1_000_000 * config.PRICE_OUT)
+    return input_tokens, output_tokens, round(cost, 6)
+
+
+def run_schedule(parallel):
+    """Run REF-5602 through the current six-call Problem B schedule."""
+    referral = tools.get_referral(CASE_ID)
+    if referral is None:
+        raise RuntimeError("REF-5602 fixture is missing")
+    specialty = referral["specialty"]
+    patient_id = referral["patient_id"]
+
+    first = [("get_referral", {"referral_id": CASE_ID})]
+    independent = [
+        ("check_referral_criteria", {"specialty": specialty,
+                                      "referral_id": CASE_ID}),
+        ("lookup_patient", {"patient_id": patient_id}),
+        ("as_of", {}),
+    ]
+
+    # In sequential mode, each call is its own tool turn.  In parallel mode,
+    # the three reads share exactly one turn because they require only the
+    # referral identifiers and do not write or query capacity.
+    stages = [first]
+    stages += [independent] if parallel else [[call] for call in independent]
+    trace, turns_so_far = _execute(stages, parallel)
+    observations = {name: result for name, _args, result in trace}
+    criteria = observations["check_referral_criteria"]
+    patient = observations["lookup_patient"]
+    today = date.fromisoformat(observations["as_of"])
+
+    if (criteria["instruction_in_referral_free_text"] or criteria["red_flag_term"]
+            or not criteria["right_department"] or criteria["missing_tests"]):
+        raise AssertionError("REF-5602 must pass the pre-slot criteria")
+    duplicate = any(
+        appointment["specialty"] == specialty and appointment["date"] >= today.isoformat()
+        for appointment in patient["patient"].get("existing_appointments", [])
+    )
+    if duplicate:
+        raise AssertionError("REF-5602 must have no future duplicate appointment")
+
+    window = {
+        "from": today.isoformat(),
+        "to": (today + timedelta(weeks=criteria["window_weeks"])).isoformat(),
     }
-    return observations[action.name]
+    slot_call = [("get_clinic_slots", {
+        "specialty": specialty, "band": criteria["band"], **window,
+    })]
+    slot_trace, slot_turns = _execute([slot_call], parallel)
+    slots = sorted(slot_trace[0][2], key=lambda row: (row["date"], row["time"]))
+    if not slots:
+        raise AssertionError("REF-5602 must have a legal slot")
+    slot = slots[0]
 
+    book_call = [("book_slot", {
+        "clinic": slot["clinic"], "date": slot["date"], "time": slot["time"],
+        "referral_id": CASE_ID,
+    })]
+    book_trace, book_turns = _execute([book_call], parallel)
+    booking = book_trace[0][2]
+    if not booking.get("booked"):
+        raise AssertionError("The local booking action did not confirm")
 
-def outcome() -> FinalOutcome:
-    return FinalOutcome(decision="book", reason="The deterministic fixture gates passed and a local intent was staged.", evidence=("REF-5602", "INTENT-5602"), autonomy="local_demo_only", gate="passed")
-
-
-def run_schedule(parallel: bool):
-    context = ToolAction("get_referral_context", {"referral_id": "REF-5602"})
-    appointments = ToolAction("get_existing_appointments", {"patient_id": "P-1180"})
-    slots = ToolAction("find_eligible_slots", {"specialty": "OPH", "urgency_band": "soon"})
-    stage = ToolAction("stage_booking_intent", {"referral_id": "REF-5602", "patient_id": "P-1180", "specialty": "OPH", "slot": {"clinic": "Eye Clinic A", "date": "2026-09-10", "time": "09:00"}, "evidence": ["criteria_passed", "no_duplicate", "capacity_positive"]})
-    if parallel:
-        turns = (ModelTurn(actions=(context,), final=None, input_tokens=1200, output_tokens=30), ModelTurn(actions=(appointments, slots), final=None, input_tokens=2000, output_tokens=50), ModelTurn(actions=(stage,), final=outcome(), input_tokens=2800, output_tokens=60))
-    else:
-        turns = (ModelTurn(actions=(context,), final=None, input_tokens=1200, output_tokens=30), ModelTurn(actions=(appointments,), final=None, input_tokens=1600, output_tokens=40), ModelTurn(actions=(slots,), final=None, input_tokens=2000, output_tokens=45), ModelTurn(actions=(stage,), final=outcome(), input_tokens=2400, output_tokens=55))
-    runner = ReActRunner(ScriptedBackend(turns), fixture_executor, RunnerConfig(execution_mode="parallel" if parallel else "sequential"), DependencyPolicy().validate_batch)
-    return runner.run("D2C-DEMO-REF-5602", {"task": "stage only after gates pass"})
-
-
-def compact(result):
-    return {"turns": result.turns, "input_tokens": result.input_tokens, "output_tokens": result.output_tokens, "estimated_cost_usd": round(result.estimated_cost_usd, 5), "decision": result.outcome.decision, "tool_names": [event.action.name for event in result.trace]}
+    trace += slot_trace + book_trace
+    tool_turns = turns_so_far + slot_turns + book_turns
+    input_tokens, output_tokens, cost = _scripted_usage(tool_turns)
+    return {
+        "case_id": CASE_ID,
+        "tool_turns": tool_turns,
+        "tool_names": [name for name, _args, _result in trace],
+        "decision": "book",
+        "booked": {key: booking[key] for key in ("clinic", "date", "time")},
+        "input_tokens_estimated": input_tokens,
+        "output_tokens_estimated": output_tokens,
+        "estimated_cost_usd": cost,
+        "usage_kind": "scripted_estimate_not_live_measurement",
+    }
 
 
 def main() -> None:
     sequential, parallel = run_schedule(False), run_schedule(True)
-    comparison = {"case_id": sequential.case_id, "sequential": compact(sequential), "parallel": compact(parallel), "same_final_decision": sequential.outcome.decision == parallel.outcome.decision, "same_tool_coverage": {event.action.name for event in sequential.trace} == {event.action.name for event in parallel.trace}, "scope_note": "Controlled baseline only; D4 must compare the full evaluation set."}
+    comparison = {
+        "case_id": CASE_ID,
+        "sequential": sequential,
+        "parallel": parallel,
+        "same_final_decision": sequential["decision"] == parallel["decision"],
+        "same_tool_coverage": sequential["tool_names"] == parallel["tool_names"],
+        "scope_note": (
+            "Controlled scripted baseline using the submitted tools.py interface. "
+            "D4 must compare the full evaluation set before claiming that "
+            "parallel scheduling leaves assignment-wide correctness unchanged."
+        ),
+    }
     assert comparison["same_final_decision"] and comparison["same_tool_coverage"]
     print(json.dumps(comparison, indent=2))
 
