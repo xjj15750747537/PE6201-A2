@@ -5,7 +5,7 @@ REF-5590,2,sequential,red_flag,escalate,2,9000,360,0.001044,True,,True
 REF-5590,2,parallel,red_flag,escalate,2,9000,360,0.001044,True,,True
 REF-5590,3,sequential,red_flag,escalate,2,9000,360,0.001044,True,,True
 REF-5590,3,parallel,red_flag,escalate,2,9000,360,0.001044,True,,True
-REF-5602,1,sequential,routine_booking_multi_query,book,5,28800,720,0.003168,True,,True
+REF-5602,1,sequential,routine_booking_multi_query,book,6,37800,840,0.004116,True,,True
 REF-5602,1,parallel,routine_booking_multi_query,book,4,21000,600,0.00234,True,,True
 REF-5614,1,sequential,mandatory_test_missing,request_information,2,9000,360,0.001044,True,,True
 REF-5614,1,parallel,mandatory_test_missing,request_information,2,9000,360,0.001044,True,,True
