@@ -30,13 +30,41 @@ about this many tokens," not as "we measured what each tool call cost."
 |---|---:|---:|---:|
 | Mean input tokens per call | 1,824.1 | 2,239.5 | +22.8% |
 | Mean output tokens per call | 70.3 | 53.9 | −23.3% |
-| Total tool calls (93 trials) | 236 | 279 | — |
+| Total tool calls (93 trials) | 236 | 279 | +18.2% |
 | Trials | 93 | 93 | — |
-| Pass rate (this run) | 88.2% | 87.1% | — |
+| Pass rate (this run) | 88.2% (82/93) | 87.1% (81/93) | −1.1pp |
+
+pp = percentage points (v2 minus v1), not a relative percent change, since pass rate is
+already a percentage — see `change.pass_rate_pp` / `change.total_tool_calls_pct` in the
+summary JSON.
 
 Matches the previously-circulated table exactly (1,824 / 2,240 / 70 / 54 / 236 / 279, rounded
 to whole numbers there). This script is the first committed, reproducible source for those
 numbers.
+
+## Breakdown: turns, and pass rate by case type
+
+| | v1 | v2 |
+|---|---:|---:|
+| Mean turns per run | 2.47 | 2.76 |
+| Positive-case pass rate (36 trials) | 35/36 (97.2%) | 35/36 (97.2%) |
+| Negative-case pass rate (57 trials) | 47/57 (82.5%) | 46/57 (80.7%) |
+
+"Turns" is the record's own `turns` field (a live model turn), not the `tool_calls`/`evidence`
+count — a turn can bundle more than one tool call, so the two numbers differ (e.g. v1: 236
+total tool calls over 230 total turns). "Negative case" uses the same rule `harness.py` uses
+to set trial counts (`harness._is_negative`: correct outcome is `ask` or `escalate`, not
+`act`). The pass-rate movement between v1 and v2 is driven entirely by negative cases;
+positive-case pass rate is unchanged.
+
+The v1→v2 rewrite changed every descriptor field (purpose, when-to-call, arguments, returns,
+failure guidance) from generic wording to domain-specific instructions on **all six** Problem
+B tools — e.g. `book_slot`'s purpose went from "Perform the named task for the current case"
+to "Commit the appointment. THE IRREVERSIBLE STEP." Because all six changed together, this
+result cannot be attributed to any one tool. This is a **controlled descriptor rewrite, not a
+return-shape rewrite**: it does not change the Python payload returned by any tool — both
+versions call the same tool functions and get the same data back; only the descriptor text
+shown to the model differs.
 
 ## Source runs
 
