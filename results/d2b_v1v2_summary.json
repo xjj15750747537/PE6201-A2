@@ -11,11 +11,23 @@
     "created_utc": "2026-09-16T14:49:15.200087+00:00",
     "trials": 93,
     "pass_rate": 0.8817204301075269,
+    "passed_trials": 82,
     "total_tool_calls": 236,
     "total_tokens_in": 430480,
     "total_tokens_out": 16596,
     "mean_input_tokens_per_call": 1824.1,
-    "mean_output_tokens_per_call": 70.3
+    "mean_output_tokens_per_call": 70.3,
+    "mean_turns_per_run": 2.47,
+    "positive_case_pass_rate": {
+      "passed": 35,
+      "total": 36,
+      "pct": 97.2
+    },
+    "negative_case_pass_rate": {
+      "passed": 47,
+      "total": 57,
+      "pct": 82.5
+    }
   },
   "v2": {
     "source_file": "nicole-gpt4omini-v1-protocolfix-01.json",
@@ -26,14 +38,30 @@
     "created_utc": "2026-09-17T03:19:56.787327+00:00",
     "trials": 93,
     "pass_rate": 0.8709677419354839,
+    "passed_trials": 81,
     "total_tool_calls": 279,
     "total_tokens_in": 624828,
     "total_tokens_out": 15045,
     "mean_input_tokens_per_call": 2239.5,
-    "mean_output_tokens_per_call": 53.9
+    "mean_output_tokens_per_call": 53.9,
+    "mean_turns_per_run": 2.76,
+    "positive_case_pass_rate": {
+      "passed": 35,
+      "total": 36,
+      "pct": 97.2
+    },
+    "negative_case_pass_rate": {
+      "passed": 46,
+      "total": 57,
+      "pct": 80.7
+    }
   },
   "change": {
     "mean_input_tokens_per_call_pct": 22.8,
-    "mean_output_tokens_per_call_pct": -23.3
+    "mean_output_tokens_per_call_pct": -23.3,
+    "total_tool_calls_pct": 18.2,
+    "pass_rate_pp": -1.1,
+    "pass_rate_pp_note": "Percentage POINTS (v2 pass_rate minus v1 pass_rate, both already percentages), not a relative percent change.",
+    "mean_turns_per_run_note": "See per_version['mean_turns_per_run'] above -- turns is the record's own turns field, not the tool_calls count (a bundled turn can carry more than one tool call)."
   }
 }
