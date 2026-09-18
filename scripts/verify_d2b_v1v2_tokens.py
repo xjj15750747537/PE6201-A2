@@ -62,6 +62,12 @@ about this many tokens of the trial it belonged to."
 import csv
 import json
 import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import harness  # noqa: E402  (needs the sys.path fix above)
 
 SOURCE_DIR = os.path.join(os.path.dirname(__file__), "..", "results", "d2b_v1v2_source")
 CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "results", "d2b_v1v2_raw_trials.csv")
@@ -71,6 +77,14 @@ RUNS = [
     ("hing-gpt4omini-v1-protocolfix-01.json", "v1"),
     ("nicole-gpt4omini-v1-protocolfix-01.json", "v2"),
 ]
+
+_KEY = harness.load_key("B")
+
+
+def _is_negative_case(case_id):
+    """True for a case whose correct outcome is ask/escalate, per the same
+    rule harness.py uses to decide trial counts (3 trials vs 1)."""
+    return harness._is_negative(_KEY.get(case_id))
 
 
 def load_run(filename):
@@ -98,27 +112,41 @@ def main():
         total_calls = 0
         total_in = 0
         total_out = 0
+        total_turns = 0
+        pos_pass = pos_total = neg_pass = neg_total = 0
         for r in data["results"]:
             rec = r["record"]
             n_calls = len(rec.get("evidence", []))
             tokens_in = rec.get("tokens_in", 0)
             tokens_out = rec.get("tokens_out", 0)
+            turns = rec.get("turns", 0)
+            is_negative = _is_negative_case(r["case_id"])
             total_calls += n_calls
             total_in += tokens_in
             total_out += tokens_out
+            total_turns += turns
+            if is_negative:
+                neg_total += 1
+                neg_pass += 1 if r["passed"] else 0
+            else:
+                pos_total += 1
+                pos_pass += 1 if r["passed"] else 0
             rows.append({
                 "prompt_version": actual_version,
                 "run_name": data["run_name"],
                 "owner": data["owner"],
                 "case_id": r["case_id"],
                 "trial": r["trial"],
+                "is_negative_case": is_negative,
                 "passed": r["passed"],
                 "tool_calls": n_calls,
+                "turns": turns,
                 "tokens_in": tokens_in,
                 "tokens_out": tokens_out,
                 "token_usage_kind": rec.get("token_usage_kind"),
             })
 
+        trials = len(data["results"])
         per_version[actual_version] = {
             "source_file": filename,
             "run_name": data["run_name"],
@@ -126,13 +154,23 @@ def main():
             "model": data["model"],
             "prompt_contract_revision": data["prompt_contract_revision"],
             "created_utc": data["created_utc"],
-            "trials": len(data["results"]),
+            "trials": trials,
             "pass_rate": data["summary"]["pass_rate"],
+            "passed_trials": round(data["summary"]["pass_rate"] * trials),
             "total_tool_calls": total_calls,
             "total_tokens_in": total_in,
             "total_tokens_out": total_out,
             "mean_input_tokens_per_call": round(total_in / total_calls, 1),
             "mean_output_tokens_per_call": round(total_out / total_calls, 1),
+            "mean_turns_per_run": round(total_turns / trials, 2),
+            "positive_case_pass_rate": {
+                "passed": pos_pass, "total": pos_total,
+                "pct": round(pos_pass / pos_total * 100, 1) if pos_total else None,
+            },
+            "negative_case_pass_rate": {
+                "passed": neg_pass, "total": neg_total,
+                "pct": round(neg_pass / neg_total * 100, 1) if neg_total else None,
+            },
         }
 
     with open(CSV_PATH, "w", newline="") as fh:
@@ -189,6 +227,19 @@ def main():
             "mean_output_tokens_per_call_pct": round(
                 (v2["mean_output_tokens_per_call"] - v1["mean_output_tokens_per_call"])
                 / v1["mean_output_tokens_per_call"] * 100, 1),
+            "total_tool_calls_pct": round(
+                (v2["total_tool_calls"] - v1["total_tool_calls"])
+                / v1["total_tool_calls"] * 100, 1),
+            "pass_rate_pp": round((v2["pass_rate"] - v1["pass_rate"]) * 100, 1),
+            "pass_rate_pp_note": (
+                "Percentage POINTS (v2 pass_rate minus v1 pass_rate, both "
+                "already percentages), not a relative percent change."
+            ),
+            "mean_turns_per_run_note": (
+                "See per_version['mean_turns_per_run'] above -- turns is "
+                "the record's own turns field, not the tool_calls count "
+                "(a bundled turn can carry more than one tool call)."
+            ),
         },
     }
     with open(SUMMARY_PATH, "w") as fh:
