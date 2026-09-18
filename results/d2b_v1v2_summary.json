@@ -1,0 +1,39 @@
+{
+  "note": "Both runs are real measured live-battery fragments (token_usage_kind=provider_reported), not scripted/estimated. nicole-gpt4omini-v1-protocolfix-01.json is named after the protocol-fix batch, not the prompt version -- its own prompt_version field is 'v2', confirmed by this script refusing to run if that field does not match.",
+  "comparability_check": "PASSED: same model (openai/gpt-4o-mini), same trial count (93 each), same prompt_contract_revision (json-contract-2026-09-16-tool-protocol).",
+  "caveat": "'mean_*_tokens_per_call' is a DERIVED MEAN (trial total tokens divided by that trial's tool-call count, summed over all 93 trials), not provider-measured per-individual-tool-call attribution -- the provider only reports one usage figure per model response/trial, never broken out per tool call within it. Report this as a labelled average, not as measured per-call cost.",
+  "v1": {
+    "source_file": "hing-gpt4omini-v1-protocolfix-01.json",
+    "run_name": "hing-gpt4omini-v1-protocolfix-01",
+    "owner": "Hing Lam Chang",
+    "model": "openai/gpt-4o-mini",
+    "prompt_contract_revision": "json-contract-2026-09-16-tool-protocol",
+    "created_utc": "2026-09-16T14:49:15.200087+00:00",
+    "trials": 93,
+    "pass_rate": 0.8817204301075269,
+    "total_tool_calls": 236,
+    "total_tokens_in": 430480,
+    "total_tokens_out": 16596,
+    "mean_input_tokens_per_call": 1824.1,
+    "mean_output_tokens_per_call": 70.3
+  },
+  "v2": {
+    "source_file": "nicole-gpt4omini-v1-protocolfix-01.json",
+    "run_name": "nicole-gpt4omini-v1-protocolfix-01",
+    "owner": "Ziyi Nicole Hu",
+    "model": "openai/gpt-4o-mini",
+    "prompt_contract_revision": "json-contract-2026-09-16-tool-protocol",
+    "created_utc": "2026-09-17T03:19:56.787327+00:00",
+    "trials": 93,
+    "pass_rate": 0.8709677419354839,
+    "total_tool_calls": 279,
+    "total_tokens_in": 624828,
+    "total_tokens_out": 15045,
+    "mean_input_tokens_per_call": 2239.5,
+    "mean_output_tokens_per_call": 53.9
+  },
+  "change": {
+    "mean_input_tokens_per_call_pct": 22.8,
+    "mean_output_tokens_per_call_pct": -23.3
+  }
+}
