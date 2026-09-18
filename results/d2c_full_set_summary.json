@@ -8,10 +8,10 @@
     "passed_vs_key": 93,
     "pass_rate": 1.0,
     "median_turns": 3,
-    "worst_case_turns": 5,
-    "total_input_tokens": 1670400,
-    "total_output_tokens": 48960,
-    "total_cost_usd": 0.1866
+    "worst_case_turns": 6,
+    "total_input_tokens": 1679400,
+    "total_output_tokens": 49080,
+    "total_cost_usd": 0.1876
   },
   "parallel": {
     "trials": 93,
@@ -25,5 +25,11 @@
   },
   "cross_schedule_match_trials": 93,
   "cross_schedule_match_rate": 1.0,
+  "ref5602_production_schedule": {
+    "sequential_turns": 6,
+    "parallel_turns": 4,
+    "note": "Uses backends.SCRIPTS['REF-5602'] directly (the schedule run_eval.py actually executes), not build_script()'s generic single-query path."
+  },
+  "methodology_note": "Both schedules are executed independently from a clean observation set via tools.call() for every case; each record is built from ITS OWN observations by decide_from_observations(), not copied from a shared final. Token/cost figures are SCRIPTED ESTIMATES (backends.ScriptedBackend.token_estimate's formula), not measurements.",
   "note": "Deterministic scripted backend: repeated trials of the same case are identical by construction. Trial counts follow harness.py's convention (negative cases x3, ordinary x1), matching the rest of the report."
 }
