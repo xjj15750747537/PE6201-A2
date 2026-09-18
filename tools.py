@@ -343,6 +343,20 @@ def get_clinic_slots(specialty, band, **window):
             and s["capacity_remaining"] > 0]
 
 
+def get_clinic_slots_v1(specialty, band, **window):
+    """Return the deliberately broad v1 slot result for D2(b)."""
+    lo = window.get("from", "0000-00-00")
+    hi = window.get("to", "9999-99-99")
+    matches = [s for s in _load("B", "clinic_slots")
+               if s["specialty"] == specialty
+               and s["band"] == band
+               and lo <= s["date"] <= hi]
+    return {"query": {"specialty": specialty, "band": band,
+                      "from": lo, "to": hi},
+            "matching_slots": matches,
+            "match_count": len(matches)}
+
+
 def book_slot(clinic, date, time, referral_id):
     """>>> THE IRREVERSIBLE STEP FOR PROBLEM B <<<
 
@@ -833,7 +847,7 @@ DESCRIPTORS = {
             "from/to": "str dates, the window measured from as_of()",
         },
         "returns": "list of {clinic, specialty, band, date, time, "
-                   "capacity_remaining}, only rows with capacity above zero",
+                   "capacity_remaining}; v2 returns only free rows",
         "failure": "Returns an EMPTY LIST when nothing is free in that window. "
                    "Empty means escalate - 'no slot in window' - and it does "
                    "NOT mean widen the window or drop the band. A slot with "
@@ -879,6 +893,10 @@ DESCRIPTORS_V1 = {
     }
     for name, descriptor in DESCRIPTORS_V2.items()
 }
+DESCRIPTORS_V1["get_clinic_slots"]["returns"] = (
+    "{query, matching_slots: list of all matching rows including full slots, "
+    "match_count: int}"
+)
 
 
 def descriptors_for(version="v2"):
@@ -890,7 +908,7 @@ def descriptors_for(version="v2"):
     raise ValueError("descriptor version must be 'v1' or 'v2'.")
 
 
-def call(problem, name, args):
+def call(problem, name, args, return_shape_version="v2"):
     """Dispatch a tool call by name.
 
     WATCH OUT      unknown tool names fail LOUDLY. A silent no-op here
@@ -899,6 +917,11 @@ def call(problem, name, args):
                    expensive kind of bug in this assignment, because
                    nothing about the output says anything went wrong.
     """
+    if return_shape_version not in {"v1", "v2"}:
+        raise ValueError("return shape version must be 'v1' or 'v2'.")
+    if (problem == "B" and name == "get_clinic_slots"
+            and return_shape_version == "v1"):
+        return get_clinic_slots_v1(**args)
     table = REGISTRY[problem]
     if name not in table:
         raise KeyError(
