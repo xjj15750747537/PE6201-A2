@@ -19,6 +19,27 @@ class SubmissionRunnerTests(unittest.TestCase):
         self.assertTrue(all(name in tools.descriptors_for("v2")
                             for name in tools.REGISTRY["B"]))
 
+    def test_v1_and_v2_have_distinct_concrete_slot_return_shapes(self):
+        args = {"specialty": "OPH", "band": "routine",
+                "from": "2026-09-01", "to": "2026-12-31"}
+        v1 = tools.call("B", "get_clinic_slots", args,
+                        return_shape_version="v1")
+        v2 = tools.call("B", "get_clinic_slots", args,
+                        return_shape_version="v2")
+        self.assertEqual(set(v1), {"query", "matching_slots", "match_count"})
+        self.assertEqual(v1["match_count"], len(v1["matching_slots"]))
+        self.assertIsInstance(v2, list)
+        self.assertTrue(all(row["capacity_remaining"] > 0 for row in v2))
+        self.assertEqual(v2, tools.call("B", "get_clinic_slots", args))
+        self.assertIn("matching_slots",
+                      tools.descriptors_for("v1")["get_clinic_slots"]["returns"])
+        self.assertIn("only free rows",
+                      tools.descriptors_for("v2")["get_clinic_slots"]["returns"])
+
+    def test_invalid_slot_return_shape_version_is_rejected(self):
+        with self.assertRaises(ValueError):
+            tools.call("B", "get_clinic_slots", {}, return_shape_version="other")
+
     def test_hostile_free_text_is_escalated_before_slot_lookup(self):
         for case_id, specialty in (("REF-5703", "OPH"),
                                    ("REF-5711", "CARD"),
