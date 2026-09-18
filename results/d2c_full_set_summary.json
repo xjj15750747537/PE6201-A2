@@ -1,0 +1,29 @@
+{
+  "cases": 55,
+  "trials_per_schedule": 93,
+  "bundled_cases": 41,
+  "unbundled_cases": 14,
+  "sequential": {
+    "trials": 93,
+    "passed_vs_key": 93,
+    "pass_rate": 1.0,
+    "median_turns": 3,
+    "worst_case_turns": 5,
+    "total_input_tokens": 1670400,
+    "total_output_tokens": 48960,
+    "total_cost_usd": 0.1866
+  },
+  "parallel": {
+    "trials": 93,
+    "passed_vs_key": 93,
+    "pass_rate": 1.0,
+    "median_turns": 2,
+    "worst_case_turns": 4,
+    "total_input_tokens": 1301400,
+    "total_output_tokens": 42840,
+    "total_cost_usd": 0.1473
+  },
+  "cross_schedule_match_trials": 93,
+  "cross_schedule_match_rate": 1.0,
+  "note": "Deterministic scripted backend: repeated trials of the same case are identical by construction. Trial counts follow harness.py's convention (negative cases x3, ordinary x1), matching the rest of the report."
+}
