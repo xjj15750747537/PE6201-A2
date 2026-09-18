@@ -58,10 +58,34 @@ all. get_clinic_slots and book_slot each run alone, EXCEPT REF-5602's two
 disjoint slot-window queries, which the authoritative production script
 (backends.SCRIPTS["REF-5602"]) bundles into one turn in the parallel
 trace.
+
+REVISION 3 (per Hing's reproducibility review)
+--------------------------------------------------
+`python scripts/verify_d2c_full_set.py` failed with
+``ModuleNotFoundError: No module named 'config'`` from a clean clone,
+because running a script directly puts ITS OWN directory (scripts/) on
+sys.path, not the repo root where config.py/harness.py/tools.py/
+backends.py/problem_b_scripts.py live -- only `python -m
+scripts.verify_d2c_full_set` happened to work, since `-m` puts the
+current working directory on sys.path instead. Fixed the same way
+scripts/run_d2c_comparison.py already does it: insert the repo root
+(this file's parent's parent) onto sys.path before importing any
+repo-root module, so the direct command works from a clean clone
+regardless of cwd.
+
+CSV_PATH / SUMMARY_PATH were also plain relative filenames, so running
+from the repo root wrote the regenerated files into the repo root
+instead of results/ (they only landed in results/ because they were
+manually moved there afterwards). Both are now built from this file's
+own location, so they always resolve to the committed results/ path no
+matter what directory the script is invoked from.
 """
 import csv
 import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
 import harness
@@ -71,8 +95,9 @@ from problem_b_scripts import (
     build_script, _final, _future_duplicate, _missing_label, _test_summary,
 )
 
-CSV_PATH = "d2c_full_set_raw_trials.csv"
-SUMMARY_PATH = "d2c_full_set_summary.json"
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+CSV_PATH = str(_REPO_ROOT / "results" / "d2c_full_set_raw_trials.csv")
+SUMMARY_PATH = str(_REPO_ROOT / "results" / "d2c_full_set_summary.json")
 
 REF5602_CASE_ID = "REF-5602"
 
