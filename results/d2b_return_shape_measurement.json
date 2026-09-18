@@ -1,0 +1,38 @@
+{
+  "measurement_kind": "deterministic serialized-JSON lexical token proxy",
+  "warning": "This is not provider-reported token usage, a live-model result, or D5/D6 cost evidence.",
+  "representative_call_args": {
+    "specialty": "OPH",
+    "band": "routine",
+    "from": "2026-09-01",
+    "to": "2026-12-31"
+  },
+  "versions": {
+    "v1": {
+      "return_type": "dict",
+      "payload_bytes": 684,
+      "payload_token_proxy": 339,
+      "scripted_full_set": {
+        "trials": 93,
+        "passed": 93
+      },
+      "scripted_hostile_guardrails": {
+        "trials": 12,
+        "passed": 12
+      }
+    },
+    "v2": {
+      "return_type": "list",
+      "payload_bytes": 340,
+      "payload_token_proxy": 169,
+      "scripted_full_set": {
+        "trials": 93,
+        "passed": 93
+      },
+      "scripted_hostile_guardrails": {
+        "trials": 12,
+        "passed": 12
+      }
+    }
+  }
+}
