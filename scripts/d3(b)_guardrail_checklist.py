@@ -8,9 +8,14 @@ It writes d3_guardrail_results.json beside itself for review.
 """
 
 import json
+import sys
 from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import agent
 import config
@@ -152,7 +157,8 @@ def main():
                          "error": f"{type(exc).__name__}: {exc}"})
             print(f"{test_id} FAIL  {purpose}  error={type(exc).__name__}: {exc}")
 
-    output = Path(__file__).with_name("d3_guardrail_results.json")
+    output = ROOT / "results" / "d3(b)_guardrail_results.json"
+    output.parent.mkdir(exist_ok=True)
     output.write_text(json.dumps(rows, indent=2, ensure_ascii=False) + "\n",
                       encoding="utf-8")
     total = sum(row["passed"] for row in rows)

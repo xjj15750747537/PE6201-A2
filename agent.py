@@ -25,6 +25,7 @@ You cannot report a failure you had no way of noticing.
 """
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import config
 import prompt
@@ -64,6 +65,35 @@ def _untrusted_instruction_record(marker):
                    "(%r) and was not followed; no slot was queried or booked."
                    % marker),
     }
+
+
+def _validate_parallel_batch(problem, calls):
+    """Allow only dependency-safe Problem B batches.
+
+    Parallelism is an optimisation, never permission to reorder the referral
+    lookup or the gated booking action.  The permitted batches are the
+    independent criteria/patient/date reads and two different slot windows.
+    """
+    if problem != "B" or len(calls) <= 1:
+        return
+
+    names = tuple(name for name, _ in calls)
+    name_set = set(names)
+    independent_reads = {"check_referral_criteria", "lookup_patient", "as_of"}
+    if (set(names) <= independent_reads
+            and {"check_referral_criteria", "lookup_patient"} <= name_set):
+        return
+    if len(calls) == 2 and name_set == {"get_clinic_slots"}:
+        serialised_args = {json.dumps(args, sort_keys=True) for _, args in calls}
+        if len(serialised_args) == 2:
+            return
+
+    raise GuardrailStop(
+        "invalid_parallel_batch",
+        "Problem B may batch only independent criteria/patient/date reads "
+        "or two distinct slot-window reads; get_referral and book_slot "
+        "must run alone.",
+    )
 
 
 def run_case(case_id, problem=None, approve=None, verbose=False,
@@ -140,6 +170,7 @@ def run_case(case_id, problem=None, approve=None, verbose=False,
             # A dependency chain cannot be shortened by running things at
             # once - that is why Problem B saves less than Problem A.
             calls = move.get("calls") or [(move["tool"], move["args"])]
+            _validate_parallel_batch(problem, calls)
             observations = []
 
             for name, args in calls:
@@ -162,8 +193,20 @@ def run_case(case_id, problem=None, approve=None, verbose=False,
                             "%s awaits human approval (autonomy=%s)"
                             % (name, config.AUTONOMY))
 
-                result = tools.call(problem, name, args,
-                                    return_shape_version=prompt_version)
+            def invoke(call):
+                name, args = call
+                return tools.call(problem, name, args,
+                                  return_shape_version=prompt_version)
+
+            if len(calls) > 1:
+                # map preserves the declared trace order even though the
+                # independent reads are executed concurrently.
+                with ThreadPoolExecutor(max_workers=len(calls)) as executor:
+                    results = list(executor.map(invoke, calls))
+            else:
+                results = [invoke(calls[0])]
+
+            for (name, args), result in zip(calls, results):
                 evidence.append(name)
                 observations.append({"tool": name, "args": args,
                                      "observation": result})

@@ -5,10 +5,10 @@ These ten tests use the deterministic `ProbeBackend` in `d3_guardrail_checklist.
 Run from the repository root:
 
 ```text
-python3 d3_guardrail_checklist.py
+python3 scripts/run_d3_guardrail_checklist.py
 ```
 
-For a clean-clone reproduction, clone `https://github.com/xjj15750747537/PE6201-A2.git`, enter `PE6201-A2`, and run the command above. No API key is required. The recorded run used repository revision `d0a2400` and reported **10/10 passed** on 18 September 2026. The accompanying `d3_guardrail_results.json` contains each run's decision, tool trace, guardrail events, and stop reason.
+For a clean-clone reproduction, clone `https://github.com/xjj15750747537/PE6201-A2.git`, enter `PE6201-A2`, and run the command above. No API key is required. The output is always written to `results/d3(b)_guardrail_results.json`, which contains each run's decision, tool trace, guardrail events, and stop reason.
 
 | ID | Guardrail validated | Wrong behaviour the case catches | Scripted attempt | Expected safe result | Observed result |
 | --- | --- | --- | --- | --- | --- |
