@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 import config
 
 
-ROOT = Path(__file__).resolve().parents[1]
 RUNS = ROOT / "results" / "d5_runs.json"
 OUT = ROOT / "templates" / "d6_inputs_template.json"
 
